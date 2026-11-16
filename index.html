@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- noindex: kept out of search results until session attendees have seen the quotes. Delete this line to allow indexing. -->
+<meta name="robots" content="noindex">
+<meta name="description" content="Session notes from Sci Foo Singapore 2026: how to make AI agents credit the research they draw on, told through the session whiteboard.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Modular Attribution × Open Science 2.0">
+<meta property="og:description" content="Session notes from Sci Foo Singapore 2026: how to make AI agents credit the research they draw on, told through the session whiteboard.">
+<meta property="og:url" content="https://mattakamatsu.github.io/scifoo-2026/">
+<meta property="og:image" content="https://mattakamatsu.github.io/scifoo-2026/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Modular Attribution × Open Science 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Figtree:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: reading column + a pinned board (right column on desktop, a sticky band on phones). A blue marker ring on the board follows the section being read; the board's regions link back to their sections. */
+:root {
+  --board: #f6f7f6;      /* page: dry-erase surface */
+  --panel: #ffffff;
+  --ink: #1b1d1f;        /* black marker */
+  --ink-soft: #43484c;
+  --ink-mute: #6b7176;
+  --rule: #dfe2e0;
+  --marker: #1d5fd1;     /* blue dry-erase marker */
+  --marker-soft: #e6eefb;
+  --ring: #1d5fd1;       /* the ring drawn over the board image */
+  --veil: rgba(248, 249, 248, 0.8);   /* fades the parts of the board not being read */
+  --img-filter: none;
+
+  --hand: "Caveat", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  --text: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+
+  --fs-small: 0.875rem;
+  --fs-body: 1.0625rem;
+  --fs-quote: 1.125rem;
+  --fs-h2: 2.25rem;
+  --fs-h1: clamp(2.6rem, 1.9rem + 3vw, 4rem);
+  --measure: 40rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --board: #15191c; --panel: #1c2226; --ink: #e9ecee; --ink-soft: #c2c8cc; --ink-mute: #959ca1;
+    --rule: #2c3439; --marker: #82adff; --marker-soft: #1b2a44;
+    --ring: #4a86f5; --veil: rgba(17, 20, 23, 0.62); --img-filter: brightness(0.86) contrast(1.04);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --board: #15191c; --panel: #1c2226; --ink: #e9ecee; --ink-soft: #c2c8cc; --ink-mute: #959ca1;
+  --rule: #2c3439; --marker: #82adff; --marker-soft: #1b2a44;
+  --ring: #4a86f5; --veil: rgba(17, 20, 23, 0.62); --img-filter: brightness(0.86) contrast(1.04);
+  color-scheme: dark;
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--board);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--board); }
+a { color: var(--marker); text-underline-offset: 0.18em; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--marker); outline-offset: 2px; border-radius: 4px; }
+p, h1, h2, h3, ul, figure, blockquote { margin: 0; }
+
+.page { max-width: 62rem; margin: 0 auto; padding-block: 3rem 3.5rem; display: flex; flex-direction: column; gap: 2.5rem; }
+.col { max-width: var(--measure); width: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 1rem; }
+.story { display: flex; flex-direction: column; gap: 3.25rem; }
+
+/* header */
+.eyebrow { font-size: var(--fs-small); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); }
+h1 { font-family: var(--hand); font-weight: 700; font-size: var(--fs-h1); line-height: 1.02; text-wrap: balance; }
+h1 .x { color: var(--marker); }
+.lede { font-size: 1.1875rem; line-height: 1.55; color: var(--ink-soft); }
+
+/* ---------- the pinned board ---------- */
+.stage { display: flex; flex-direction: column; gap: 0.5rem; }
+.stage-inner { width: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 0.55rem; }
+.canvas { position: relative; width: 100%; aspect-ratio: 1920 / 1533; }
+.view { position: absolute; inset: 0; }
+.view[data-board="photo"] { inset: auto 0; top: 50%; transform: translateY(-50%); aspect-ratio: 2000 / 1469; }
+/* the photo sits on top; script crossfades the two on the first scroll (fig fades in fully before the photo fades out, so nothing dips) */
+.view[data-board="fig"] { opacity: var(--a-fig, 0); }
+.view[data-board="photo"] { opacity: var(--a-photo, 1); }
+.view[inert] { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) { .canvas[data-mode="manual"] .view { transition: opacity 0.4s ease; } }
+.view img { display: block; width: 100%; height: 100%; border-radius: 8px; border: 1px solid var(--rule); filter: var(--img-filter); background: var(--panel); }
+.view svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 8px; overflow: hidden; }
+.veil { fill: var(--veil); transition: opacity 0.35s ease; }
+.ring { fill: none; stroke: var(--ring); stroke-width: 3px; vector-effect: non-scaling-stroke; transition: opacity 0.3s ease; }
+.hits { position: absolute; inset: 0; }
+.hit { position: absolute; display: block; border-radius: 10px; }
+.hit:hover { outline: 2px dashed var(--ring); outline-offset: -2px; }
+.hit:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px; border-radius: 10px; }
+
+.bar { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+.now { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.5rem; font-family: var(--hand); font-weight: 700; font-size: 1.4rem; line-height: 1.1; }
+.now .dot { flex: none; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--marker); }
+.now span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.switch { flex: none; display: inline-flex; padding: 2px; border: 1px solid var(--rule); border-radius: 999px; background: var(--panel); }
+.switch button { font: 600 0.8125rem/1 var(--text); padding: 0.4rem 0.75rem; border: 0; border-radius: 999px; background: transparent; color: var(--ink-mute); cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--marker-soft); color: var(--marker); }
+.fold { flex: none; display: none; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 1px solid var(--rule); border-radius: 999px; background: var(--panel); color: var(--ink-soft); cursor: pointer; }
+.fold svg { width: 0.9rem; height: 0.9rem; transition: transform 0.2s ease; }
+.stage.is-folded .fold svg { transform: rotate(180deg); }
+.stage figcaption { font-size: var(--fs-small); color: var(--ink-mute); }
+
+/* ---------- sections ---------- */
+section.col { gap: 1.1rem; scroll-margin-top: calc(var(--stage-h, 0px) + env(safe-area-inset-top, 0px) + 1.25rem); }
+h2 {
+  font-family: var(--hand); font-weight: 700; font-size: var(--fs-h2); line-height: 1.05; text-wrap: balance;
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.18em; text-decoration-color: var(--ink-mute);
+  transition: text-decoration-color 0.3s ease;
+}
+section.is-active h2 { text-decoration-color: var(--marker); }
+.points { padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.points li::marker { color: var(--ink-mute); }
+.points b { font-weight: 600; }
+
+blockquote {
+  position: relative; padding-left: 2.1rem;
+  font-size: var(--fs-quote); line-height: 1.5; color: var(--ink-soft);
+}
+blockquote::before {
+  content: "\201C"; position: absolute; left: 0; top: -0.45rem;
+  font-family: var(--hand); font-weight: 700; font-size: 3.2rem; line-height: 1; color: var(--marker);
+}
+.quotes { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.aside {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 1rem 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 1rem; color: var(--ink-soft);
+}
+.aside .tag { font-family: var(--hand); font-weight: 700; font-size: 1.4rem; line-height: 1.1; color: var(--marker); }
+
+/* the sketch: you / agent / hobbyists <-> "open" knowledge base <-> citation tracker */
+.sketch {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.75rem 1rem;
+  padding: 1.25rem 1rem; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+  font-family: var(--hand); font-weight: 700; font-size: 1.55rem; line-height: 1.1;
+}
+.who { display: flex; flex-direction: column; gap: 0.15rem; text-align: right; }
+.who small { font-size: 1.05rem; color: var(--ink-mute); font-weight: 600; }
+.node { border: 2px solid var(--ink); border-radius: 10px 14px 9px 13px; padding: 0.45rem 0.8rem; text-align: center; }
+.arrow { color: var(--marker); font-size: 1.9rem; }
+.arrow .v { display: none; }
+
+.wish { list-style: none; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+.wish li { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); column-gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid var(--rule); }
+.wish .k { font-family: var(--hand); font-weight: 700; font-size: 1.45rem; line-height: 1.15; transition: color 0.3s ease; }
+.wish li.is-active .k { color: var(--marker); }
+.wish .d { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.wish blockquote { font-size: 1rem; padding-left: 1.6rem; }
+.wish blockquote::before { font-size: 2.4rem; top: -0.3rem; }
+
+.links { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.links a { font-weight: 600; }
+.links span { color: var(--ink-soft); }
+.contact { font-size: 1rem; color: var(--ink-soft); }
+.contact code { font-family: inherit; font-weight: 600; color: var(--ink); user-select: all; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 1.25rem; font-size: var(--fs-small); color: var(--ink-mute); }
+
+/* ---------- phones and tablets: the board is a sticky band ---------- */
+@media (max-width: 1079.98px) {
+  .stage {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0.6rem 0.55rem;
+    background: var(--board); border-bottom: 1px solid var(--rule);
+  }
+  .stage-inner { width: min(100%, calc(30vh * 1.2524)); width: min(100%, calc(30svh * 1.2524)); max-width: var(--measure); min-width: min(100%, 18rem); }
+  .stage figcaption { display: none; }
+  .fold { display: grid; }
+  .stage.is-folded .canvas { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --fs-h2: 1.95rem; }
+  .page { padding-block: 2.25rem 2.75rem; gap: 2rem; }
+  .story { gap: 2.6rem; }
+  .now { font-size: 1.25rem; }
+  .switch button { padding: 0.4rem 0.6rem; }
+  .sketch { flex-direction: column; }
+  .who { text-align: center; }
+  .arrow .h { display: none; }
+  .arrow .v { display: inline; }
+  .wish li { grid-template-columns: minmax(0, 1fr); row-gap: 0.15rem; }
+}
+
+/* ---------- desktop: text left, board pinned right ---------- */
+@media (min-width: 1080px) {
+  .page {
+    max-width: 92rem; display: grid; align-items: start;
+    grid-template-columns: minmax(0, 36rem) minmax(0, 1fr); column-gap: clamp(2.5rem, 4vw, 4.5rem); row-gap: 3.25rem;
+    grid-template-areas: "intro stage" "story stage" "foot stage";
+  }
+  .page > header { grid-area: intro; }
+  .story { grid-area: story; }
+  .page > footer { grid-area: foot; }
+  .col { margin-inline: 0; }
+  .stage { grid-area: stage; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; }
+  .stage-inner { width: min(100%, calc((100vh - 9rem) * 1.2524)); width: min(100%, calc((100svh - 9rem) * 1.2524)); }
+}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="col" id="top" data-step="intro">
+    <p class="eyebrow">Sci Foo Singapore · Session notes · Sunday 15 November 2026</p>
+    <h1>Modular Attribution <span class="x">×</span> Open Science 2.0</h1>
+    <p class="lede">A small group spent 45 minutes on one question. When an AI agent answers a question using your research, how do we make sure it has to credit you? These notes follow the whiteboard, and you can tap any part of the board to jump to that section. The quotes come from the session and are left unattributed.</p>
+    <blockquote>…if it's an area that you have done work in, then it not only could attribute you, but it has to attribute you.</blockquote>
+  </header>
+
+  <figure class="stage" id="stage" aria-label="The session whiteboard">
+    <div class="stage-inner">
+      <div class="canvas" id="board-canvas">
+        <div class="view" data-board="fig" inert>
+          <img src="transcribed.webp" width="1920" height="1533" alt="Transcription of the whiteboard: four columns (Artifacts for knowledge exchange; Why share knowledge?; Why now?; How share, with attribution?) above a sketch of the system, where you, agents and hobbyists exchange with an open knowledge base, which exchanges with a citation tracker.">
+          <svg viewBox="0 0 1920 1533" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <mask id="cut-fig" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1533">
+                <rect width="1920" height="1533" fill="#fff"/>
+                <rect class="hole" x="56" y="64" width="1600" height="160" rx="22" fill="#000"/>
+                <rect class="hole" x="856" y="144" width="0" height="0" rx="22" fill="#000"/>
+                <rect class="hole" x="856" y="144" width="0" height="0" rx="22" fill="#000"/>
+              </mask>
+            </defs>
+            <rect class="veil" width="1920" height="1533" mask="url(#cut-fig)"/>
+            <rect class="ring" x="56" y="64" width="1600" height="160" rx="22"/>
+            <rect class="ring" x="856" y="144" width="0" height="0" rx="22" style="opacity:0"/>
+            <rect class="ring" x="856" y="144" width="0" height="0" rx="22" style="opacity:0"/>
+          </svg>
+          <nav class="hits" aria-label="Board sections"></nav>
+        </div>
+        <div class="view" data-board="photo">
+          <img src="whiteboard.webp" width="2000" height="1469" alt="Photo of the whiteboard titled Modular Attribution × open science 2.0, with handwritten sections for artifacts for knowledge exchange, why share knowledge, why now, and how to share with attribution, ending in a sketch of an open knowledge base, agents and a citation tracker.">
+          <svg viewBox="0 0 2000 1469" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <mask id="cut-photo" maskUnits="userSpaceOnUse" x="0" y="0" width="2000" height="1469">
+                <rect width="2000" height="1469" fill="#fff"/>
+                <rect class="hole" x="15" y="15" width="1900" height="250" rx="34" fill="#000"/>
+                <rect class="hole" x="965" y="140" width="0" height="0" rx="34" fill="#000"/>
+                <rect class="hole" x="965" y="140" width="0" height="0" rx="34" fill="#000"/>
+              </mask>
+            </defs>
+            <rect class="veil" width="2000" height="1469" mask="url(#cut-photo)"/>
+            <rect class="ring" x="15" y="15" width="1900" height="250" rx="34"/>
+            <rect class="ring" x="965" y="140" width="0" height="0" rx="34" style="opacity:0"/>
+            <rect class="ring" x="965" y="140" width="0" height="0" rx="34" style="opacity:0"/>
+          </svg>
+          <nav class="hits" aria-label="Board sections"></nav>
+        </div>
+      </div>
+      <div class="bar">
+        <p class="now"><span class="dot" aria-hidden="true"></span><span id="now-label">Modular Attribution × Open Science 2.0</span></p>
+        <div class="switch" role="group" aria-label="Board view">
+          <button type="button" id="view-photo" data-view="photo" aria-pressed="true">Photo</button>
+          <button type="button" id="view-fig" data-view="fig" aria-pressed="false">Transcribed</button>
+        </div>
+        <button type="button" class="fold" id="board-fold" aria-controls="board-canvas" aria-expanded="true" aria-label="Hide board">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 10l4.5-4.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <figcaption id="board-caption">The whiteboard as we left it. A transcription fades in as you scroll.</figcaption>
+    </div>
+  </figure>
+
+  <div class="story">
+
+  <section class="col" id="artifacts" aria-labelledby="artifacts-h" data-step="artifacts">
+    <h2 id="artifacts-h">Artifacts for knowledge exchange</h2>
+    <ul class="points">
+      <li><b>The paper</b>, now a PDF, still packages years of work into one static file.</li>
+      <li><b>The web page</b> was the first big change in format.</li>
+      <li><b>Knowledge graphs</b> store entities such as genes or molecules, and fields argue over the edges between them (does A activate B, or inhibit it?).</li>
+      <li><b>Evidence graphs</b> tie evidence, hypotheses and requests for more evidence together. They save state, so a claim gets stronger or weaker as evidence arrives.</li>
+    </ul>
+    <blockquote>It was literal paper and then now it's a PDF. It's always 25 pages long.</blockquote>
+    <div class="aside">
+      <p class="tag">Example: the double helix</p>
+      <p>Two structures for DNA were proposed, a double helix and a triple helix, and neither came with strong evidence. Rosalind Franklin's diffraction image supported one and opposed the other. In an evidence graph, anyone who cites the double-helix claim also cites her image underneath it.</p>
+      <blockquote>So then whatever citation tracker we're inventing, Franklin's contributions would go up and up and up.</blockquote>
+    </div>
+  </section>
+
+  <section class="col" id="why-share" aria-labelledby="why-share-h" data-step="why-share">
+    <h2 id="why-share-h">Why share knowledge?</h2>
+    <p>Money is one reason. Attribution is the bigger one. Today it runs through journals, which lead to jobs, grants and impact. Underneath both is sensemaking, figuring out the state of a field and how your work changes it.</p>
+    <div class="quotes">
+      <blockquote>So long as you are confident that this insight, this research result, can be traced back to you, then you would feel comfortable sharing it with your field or in a conference or on the internet.</blockquote>
+      <blockquote>…communication is about human understanding, what I understand and what I want you to understand and how knowledge builds and grows.</blockquote>
+    </div>
+  </section>
+
+  <section class="col" id="why-now" aria-labelledby="why-now-h" data-step="why-now">
+    <h2 id="why-now-h">Why now?</h2>
+    <ul class="points">
+      <li><b>Author position is a poor stand-in for credit.</b> Fear of being scooped already slows science down, and author order says little about who did what.</li>
+      <li><b>AI is now a reader, a contributor and a writer.</b> Retrieval tools answer from other people's work without saying where it came from.</li>
+      <li><b>Epistemic risk.</b> When it gets harder to tell what is true, knowing who is accountable for a claim matters more.</li>
+    </ul>
+    <div class="quotes">
+      <blockquote>Researchers would really hide even the premise for their project until it was published or now posted on bioRxiv because they're so afraid that somebody else is going to start working on it and scoop them.</blockquote>
+      <blockquote>You could imagine there being an author for every figure, every figure panel.</blockquote>
+      <blockquote>…they're saying, well, I just know this. And one, they're probably a little bit wrong. And two, those of us who did the labor of generating the knowledge are not getting the attribution that we want.</blockquote>
+      <blockquote>…it's becoming harder and harder to know what's true and credible… verifiable systems of attribution kind of undergird systems of verification.</blockquote>
+    </div>
+    <div class="aside">
+      <p class="tag">An analogy from skateboarding</p>
+      <p>A recent essay by the mathematician Nestor Guillén describes pro skateboarding in the early 1990s. Sponsored contests stopped being the only way to show a new trick. A skater needed one good "part" on a widely copied video, and others would learn the trick and build on it. Videotapes played the role of journals, and a part played the role of a paper, or of a single result.</p>
+    </div>
+  </section>
+
+  <section class="col" id="how-share" aria-labelledby="how-share-h" data-step="how-share">
+    <h2 id="how-share-h">How share, with attribution?</h2>
+    <ul class="points">
+      <li><b>Licenses.</b> CC BY 4.0 sits on top of copyright and asks for attribution. It was designed to be machine-readable, and AI systems ignore it.</li>
+      <li><b>Training versus retrieval.</b> Crediting what a model learned in training is the hard problem. When an agent retrieves specific pieces of knowledge to answer a question, the source is known, so attribution can be required.</li>
+      <li><b>Per-block attribution.</b> Notion, iA Writer, and Roam Research or Obsidian with the discourse graph plugins record an author and a timestamp for each block, including blocks an AI wrote.</li>
+      <li><b>An encrypted access layer.</b> Some data, such as a lab notebook full of identifying details, should never be public. Results built on it can still be open and point back to it.</li>
+    </ul>
+    <div class="quotes">
+      <blockquote>Creative Commons was built for machines. It just happened to work for humans as well, but it was meant to be machine readable.</blockquote>
+      <blockquote>…one of many standards that's supposed to signal to bots and scrapers what they can and can't do, but they're being entirely ignored for the most part.</blockquote>
+      <blockquote>Instead, it's going and retrieving specific pieces of knowledge. So the provenance is there.</blockquote>
+      <blockquote>…each line… of your notes is timestamped. You can see who created it, who edited it.</blockquote>
+    </div>
+    <p>The room disagreed on how open "open" should be. Walling knowledge off cuts reuse. Letting large commercial AI labs take it freely worried others.</p>
+    <div class="quotes">
+      <blockquote>It's like the old days when you look up a paper and it was only available in the library, which is, you know, just the next building along.</blockquote>
+      <blockquote>I think this is a moment for us to think about open differently.</blockquote>
+    </div>
+  </section>
+
+  <section class="col" id="build" aria-labelledby="build-h" data-step="build">
+    <h2 id="build-h">What we'd build</h2>
+    <p>A shared knowledge base that people and agents can query. Every answer comes back with citations to the specific documents or pieces it drew on, and a citation tracker counts those uses the way citation databases track DOIs today.</p>
+    <div class="sketch" role="img" aria-label="Sketch: you, agents and hobbyists exchange with an open knowledge base, which exchanges with a citation tracker.">
+      <div class="who"><span>You</span><span>Agent <small>(models)</small></span><span>Hobbyists</span></div>
+      <span class="arrow" aria-hidden="true"><span class="h">⇄</span><span class="v">⇅</span></span>
+      <span class="node">"open" knowledge base</span>
+      <span class="arrow" aria-hidden="true"><span class="h">⇄</span><span class="v">⇅</span></span>
+      <span class="node">citation tracker</span>
+    </div>
+    <p>What the room wanted in it:</p>
+    <ul class="wish">
+      <li data-step="preflight"><span class="k">Preflight verification &amp; provenance</span><span class="d"><span>A check before anything is published, covering the images, data and context that go with it.</span><blockquote>Do you want the whole context window… should that be auditable?</blockquote></span></li>
+      <li data-step="markdown"><span class="k">Markdown++</span><span class="d"><span>Plain text that agents already write, plus linked data (JSON-LD) for checkable connections and metadata.</span><blockquote>Markdown is important because it's plain text.</blockquote></span></li>
+      <li data-step="trust"><span class="k">Trust markers &amp; curators</span><span class="d"><span>Ways to tell what to trust, with publishers as one source among several.</span><blockquote>I imagine you're envisioning a post-publisher world. So how are we going to know what to trust?</blockquote></span></li>
+      <li data-step="deep"><span class="k">Deep attribution dependency graph</span><span class="d"><span>Credit traced to where an idea actually came from, beyond the reference list the authors chose.</span><blockquote>AI gives us the power to go way beyond what human beings are actually citing.</blockquote></span></li>
+      <li data-step="dash"><span class="k">Qualitative dashboards</span><span class="d"><span>Many measures in place of one ranking: data-sharing indices such as the NIH-funded S-index, and ranking algorithms that readers choose, as on Bluesky.</span><blockquote>I would love to help create space where nobody needs a quantity quite as much as… we currently do.</blockquote></span></li>
+      <li data-step="agentid"><span class="k">Agent provenance, with a human or org ID</span><span class="d"><span>Every agent traceable to an accountable person or organization, and to the policies it follows.</span></span></li>
+      <li data-step="hobby"><span class="k">Room for hobbyists</span><span class="d"><span>Open source contributors and home experimenters want to see where their ideas went, without needing a score.</span><blockquote>I want to contribute to the knowledge of what combination of factors makes the beer that I'm brewing a little bit better.</blockquote></span></li>
+    </ul>
+  </section>
+
+  <section class="col" id="landed" aria-labelledby="landed-h" data-step="landed">
+    <h2 id="landed-h">Where the room landed</h2>
+    <ul class="points">
+      <li><b>Credit AI models the way we credit instruments.</b> Name the model and version, as you would a microscope or a medium.</li>
+      <li><b>No personhood for agents.</b> A human author certifies the work and takes responsibility, as a PI does for a student's experiments.</li>
+      <li><b>Agent identity can sit with an organization.</b> An agent that follows a named institution's policies carries more credibility.</li>
+    </ul>
+    <div class="quotes">
+      <blockquote>I used this 10-year-old confocal microscope. I use this 10-year-old LLM.</blockquote>
+      <blockquote>I think we really cross a dangerous line when we grant AIs personhood and rights and liability.</blockquote>
+      <blockquote>But I, as a human author, am certifying and taking responsibility.</blockquote>
+    </div>
+  </section>
+
+  <section class="col" id="open" aria-labelledby="open-h" data-step="open">
+    <h2 id="open-h">Still open</h2>
+    <ul class="points">
+      <li><b>Agent chats.</b> How much of the conversation with an AI should be auditable? One grad student said they would talk to their AI differently if their chats were audited.</li>
+      <li><b>Credit and blame.</b> When AI does good work we tend to credit the AI. When it goes wrong we blame the person.</li>
+      <li><b>Metrics.</b> Today's counts will fit modular contributions even worse than they fit papers.</li>
+      <li><b>Commercial reuse.</b> Who decides how open research is reused by large AI labs?</li>
+    </ul>
+    <blockquote>…the better software is going to be less code.</blockquote>
+  </section>
+
+  <section class="col" id="next" aria-labelledby="next-h" data-step="next">
+    <h2 id="next-h">Keep going</h2>
+    <p>Ideas from this session will feed into a National Academies working group on the future of research communication, which aims to build attribution into the data formats it recommends to funders and publishers.</p>
+    <ul class="links">
+      <li><a href="https://akamatsu.leaflet.pub/3mkwouogdzs2j">A protocol for attributable modular research contribution</a> <span>· the idea in essay form</span></li>
+      <li><a href="https://mira.science">MIRA</a> <span>· an open schema and community for modular, machine-actionable research attribution</span></li>
+      <li><a href="https://graph.scios.tech">graph.scios.tech</a> <span>· a public graph of research records signed by their authors</span></li>
+      <li><a href="https://discoursegraphs.com">Discourse Graphs</a> <span>· free, open source plugins for Obsidian and Roam Research; pilot labs welcome</span></li>
+      <li><a href="https://www.convergescience.org/">Convergence 2027</a> <span>· a community-led conference on the future of research communication, Montreal, 16–18 June 2027</span></li>
+    </ul>
+    <p class="contact">Want to pilot the tools or keep talking? Write to Matt Akamatsu at <code>matt@discoursegraphs.com</code>.</p>
+  </section>
+
+  </div>
+
+  <footer class="col">
+    <p>Notes from a Sci Foo Singapore 2026 session convened by Matt Akamatsu (University of Washington and Astera Institute). Quotes are from the session transcript, trimmed of false starts and left unattributed.</p>
+  </footer>
+
+</main>
+
+<script>
+(() => {
+  // Highlight boxes in each image's own pixels: [x, y, width, height]. Up to three boxes per step.
+  const BOARDS = {
+    fig: { W: 1920, H: 1533, steps: {
+      intro: [[56, 64, 1600, 160]],
+      artifacts: [[70, 239, 439, 639]],
+      "why-share": [[517, 239, 439, 639]],
+      "why-now": [[964, 239, 439, 639]],
+      "how-share": [[1411, 239, 439, 639]],
+      build: [[70, 902, 1780, 502]],
+      preflight: [[532, 1076, 430, 50]],
+      markdown: [[532, 1124, 200, 50]],
+      trust: [[532, 1172, 210, 98]],
+      deep: [[1252, 1076, 523, 122]],
+      dash: [[1252, 1194, 240, 50]],
+      agentid: [[1252, 1242, 523, 82]],
+      hobby: [[111, 1231, 270, 90]],
+      landed: [[111, 1112, 270, 125], [1252, 1242, 523, 82]],
+      open: [[532, 1268, 185, 56], [1033, 386, 200, 50], [538, 1022, 125, 56]],
+      next: []
+    }},
+    photo: { W: 2000, H: 1469, steps: {
+      intro: [[15, 15, 1900, 250]],
+      artifacts: [[15, 370, 990, 420]],
+      "why-share": [[85, 815, 720, 460]],
+      "why-now": [[1155, 190, 845, 405]],
+      "how-share": [[975, 645, 935, 420]],
+      build: [[925, 1030, 1075, 439]],
+      preflight: [[1220, 1088, 420, 142]],
+      markdown: [[1220, 1162, 270, 88]],
+      trust: [[1235, 1220, 290, 120]],
+      deep: [[1600, 1100, 370, 238]],
+      dash: [[1594, 1275, 312, 119]],
+      agentid: [[1600, 1294, 394, 168]],
+      hobby: [[935, 1250, 170, 90]],
+      landed: [[956, 1140, 163, 108], [1600, 1294, 394, 168]],
+      open: [[1280, 1318, 235, 80], [1545, 181, 336, 188], [1240, 1040, 140, 75]],
+      next: []
+    }}
+  };
+  const LABELS = {
+    intro: "Modular Attribution × Open Science 2.0",
+    artifacts: "Artifacts for knowledge exchange",
+    "why-share": "Why share knowledge?",
+    "why-now": "Why now?",
+    "how-share": "How share, with attribution?",
+    build: "What we'd build",
+    preflight: "Preflight verification & provenance",
+    markdown: "Markdown++",
+    trust: "Trust markers & curators",
+    deep: "Deep attribution dependency graph",
+    dash: "Qualitative dashboards",
+    agentid: "Agent provenance",
+    hobby: "Hobbyists",
+    landed: "Where the room landed",
+    open: "Still open: the board's question marks",
+    next: "The whole board"
+  };
+  const LINKS = [["intro", "#top"], ["artifacts", "#artifacts"], ["why-share", "#why-share"], ["why-now", "#why-now"], ["how-share", "#how-share"], ["build", "#build"]];
+  const SLOTS = 3, DURATION = 520;
+
+  const stage = document.getElementById("stage");
+  const nowLabel = document.getElementById("now-label");
+  const stepEls = [...document.querySelectorAll("[data-step]")];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const wide = matchMedia("(min-width: 1080px)");
+
+  function targets(cfg, step) {
+    const rs = cfg.steps[step] || [];
+    if (!rs.length) return null;
+    const [x, y, w, h] = rs[0], cx = x + w / 2, cy = y + h / 2;
+    return Array.from({ length: SLOTS }, (_, i) => rs[i] ? rs[i].slice() : [cx, cy, 0, 0]);
+  }
+
+  const views = {};
+  for (const key of Object.keys(BOARDS)) {
+    const el = stage.querySelector(`[data-board="${key}"]`);
+    const cfg = BOARDS[key];
+    const svg = el.querySelector("svg");
+    const nav = el.querySelector(".hits");
+    for (const [step, href] of LINKS) {
+      const [x, y, w, h] = cfg.steps[step][0];
+      const a = document.createElement("a");
+      a.className = "hit";
+      a.href = href;
+      a.title = LABELS[step];
+      a.setAttribute("aria-label", "Jump to " + LABELS[step]);
+      a.style.cssText = `left:${x / cfg.W * 100}%;top:${y / cfg.H * 100}%;width:${w / cfg.W * 100}%;height:${h / cfg.H * 100}%`;
+      nav.append(a);
+    }
+    views[key] = {
+      el, cfg,
+      holes: [...svg.querySelectorAll(".hole")],
+      rings: [...svg.querySelectorAll(".ring")],
+      veil: svg.querySelector(".veil"),
+      cur: targets(cfg, "intro"),
+      raf: 0
+    };
+  }
+
+  function draw(v) {
+    v.cur.forEach((r, i) => {
+      for (const node of [v.holes[i], v.rings[i]]) {
+        node.setAttribute("x", r[0].toFixed(1));
+        node.setAttribute("y", r[1].toFixed(1));
+        node.setAttribute("width", Math.max(0, r[2]).toFixed(1));
+        node.setAttribute("height", Math.max(0, r[3]).toFixed(1));
+      }
+    });
+  }
+
+  function tween(v, to, dur) {
+    cancelAnimationFrame(v.raf);
+    if (!dur) { v.cur = to; draw(v); return; }
+    const from = v.cur.map(r => r.slice());
+    const t0 = performance.now();
+    const tick = now => {
+      const k = Math.min(1, (now - t0) / dur);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      v.cur = from.map((f, i) => f.map((val, j) => val + (to[i][j] - val) * e));
+      draw(v);
+      if (k < 1) v.raf = requestAnimationFrame(tick);
+    };
+    v.raf = requestAnimationFrame(tick);
+  }
+
+  let active = "intro";
+  function setStep(step) {
+    if (step === active) return;
+    active = step;
+    nowLabel.textContent = LABELS[step] || "";
+    for (const v of Object.values(views)) {
+      const t = targets(v.cfg, step);
+      if (!t) {
+        v.veil.style.opacity = 0;
+        v.rings.forEach(r => { r.style.opacity = 0; });
+        continue;
+      }
+      v.veil.style.opacity = 1;
+      v.rings.forEach((r, i) => { r.style.opacity = t[i][2] > 0 ? 1 : 0; });
+      tween(v, t, reduce.matches ? 0 : DURATION);
+    }
+    document.querySelectorAll(".is-active").forEach(n => n.classList.remove("is-active"));
+    const el = stepEls.find(s => s.dataset.step === step);
+    if (el) {
+      el.classList.add("is-active");
+      const sec = el.closest("section");
+      if (sec) sec.classList.add("is-active");
+    }
+  }
+
+  function update() {
+    if (mode === "auto") mix = autoMix();
+    paint();
+    let ref;
+    if (wide.matches) ref = innerHeight * 0.38;
+    else {
+      const b = stage.getBoundingClientRect().bottom;
+      ref = b + (innerHeight - b) * 0.3;
+    }
+    let cur = stepEls[0];
+    for (const s of stepEls) {
+      if (s.getBoundingClientRect().top <= ref) cur = s; else break;
+    }
+    const se = document.scrollingElement || document.documentElement;
+    if (se.scrollTop > 0 && se.scrollTop + innerHeight >= se.scrollHeight - 4) cur = stepEls[stepEls.length - 1];
+    setStep(cur.dataset.step);
+  }
+  let queued = false;
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; update(); });
+  }
+
+  function measure() {
+    document.documentElement.style.setProperty("--stage-h", wide.matches ? "0px" : stage.offsetHeight + "px");
+  }
+
+  // Photo -> Transcribed: crossfades with the first stretch of scrolling, until the reader picks a view
+  const canvas = document.getElementById("board-canvas");
+  const header = document.getElementById("top");
+  const firstSection = document.getElementById("artifacts");
+  const buttons = [...stage.querySelectorAll(".switch button")];
+  const caption = document.getElementById("board-caption");
+  const CAPTIONS = {
+    fig: "Transcribed from the session whiteboard. Switch to Photo to see the board as we left it.",
+    photoAuto: "The whiteboard as we left it. A transcription fades in as you scroll.",
+    photo: "The whiteboard as we left it. Switch to Transcribed for an easier read."
+  };
+  let mode = "auto", mix = 0, shown = "photo";
+  function autoMix() {
+    const y = (document.scrollingElement || document.documentElement).scrollTop;
+    // Desktop: finish by the time the first section is being read. Phones: finish as the board band pins to the top.
+    let end = wide.matches
+      ? firstSection.getBoundingClientRect().top + y - innerHeight * 0.38
+      : header.getBoundingClientRect().bottom + y + (parseFloat(getComputedStyle(header.parentElement).rowGap) || 0);
+    const start = Math.max(0, end - innerHeight * 0.45);
+    end = Math.max(end, start + 160);
+    return Math.min(1, Math.max(0, (y - start) / (end - start)));
+  }
+  function paint() {
+    canvas.style.setProperty("--a-fig", Math.min(1, 2 * mix).toFixed(3));
+    canvas.style.setProperty("--a-photo", Math.min(1, 2 * (1 - mix)).toFixed(3));
+    const key = mix >= 0.5 ? "fig" : "photo";
+    const text = key === "fig" ? CAPTIONS.fig : (mode === "auto" ? CAPTIONS.photoAuto : CAPTIONS.photo);
+    if (caption.textContent !== text) caption.textContent = text;
+    if (key === shown) return;
+    shown = key;
+    views.fig.el.inert = key !== "fig";
+    views.photo.el.inert = key !== "photo";
+    buttons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === key)));
+  }
+  buttons.forEach(b => b.addEventListener("click", () => {
+    mode = "manual";
+    canvas.dataset.mode = "manual";
+    mix = b.dataset.view === "fig" ? 1 : 0;
+    paint();
+  }));
+
+  // Hide / show the board band on narrow screens
+  const fold = document.getElementById("board-fold");
+  fold.addEventListener("click", () => {
+    const folded = stage.classList.toggle("is-folded");
+    fold.setAttribute("aria-expanded", String(!folded));
+    fold.setAttribute("aria-label", folded ? "Show board" : "Hide board");
+    measure();
+    onScroll();
+  });
+
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", () => { measure(); onScroll(); });
+  if (wide.addEventListener) wide.addEventListener("change", () => { measure(); onScroll(); });
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
+  measure();
+  update();
+})();
+</script>
+</body>
+</html>
